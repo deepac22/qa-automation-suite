@@ -43,3 +43,14 @@ class TestLogin:
         login_page.login("invalid_user", "wrong_password")
         error = login_page.get_error_message()
         assert "Username and password do not match" in error
+    @pytest.mark.parametrize("username, password, expected_error", [
+        ("invalid_user", "wrong", "Username and password do not match"),
+        ("", "secret_sauce", "Username is required"),
+        ("standard_user", "", "Password is required"),
+        ("locked_out_user", "secret_sauce", "Sorry, this user has been locked out"),
+    ])
+    def test_login_error_messages(self, driver, username, password, expected_error):
+        login_page = LoginPage(driver)
+        login_page.login(username, password)
+        error = login_page.get_error_message()
+        assert expected_error in error
