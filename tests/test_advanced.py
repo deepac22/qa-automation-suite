@@ -13,15 +13,8 @@ from pages.cart_page import CartPage
 
 class TestAdvanced:
     
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        """Reset cart by navigating to a fresh session."""
-        # This runs before each test
-        pass
-    
     @pytest.fixture
     def driver(self):
-        """Create a fresh WebDriver session for each test."""
         chrome_options = Options()
         if os.getenv("CI") == "true":
             chrome_options.add_argument("--headless")
@@ -42,17 +35,18 @@ class TestAdvanced:
         driver.quit()
     
     def test_cart_is_empty_on_load(self, driver):
-        """Verify cart is empty when first landing on the products page."""
         products_page = ProductsPage(driver)
         cart_count = products_page.get_cart_count()
         assert cart_count == 0, "Cart should be empty when no items added"
     
     def test_checkout_with_empty_cart(self, driver):
-        """Verify that the user can proceed to checkout with an empty cart."""
         products_page = ProductsPage(driver)
         products_page.go_to_cart()
         
         cart_page = CartPage(driver)
         cart_page.proceed_to_checkout()
         
+        # SauceDemo does allow checkout with an empty cart
+        # The user is redirected to the checkout page
+        # We verify the URL contains "checkout"
         assert "checkout" in driver.current_url, "Should navigate to checkout page"
