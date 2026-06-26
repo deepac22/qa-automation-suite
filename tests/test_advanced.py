@@ -44,8 +44,11 @@ class TestAdvanced:
         products_page.go_to_cart()
         
         cart_page = CartPage(driver)
-        # Checkout button should be disabled or redirect back
-        # SauceDemo allows checkout even with empty cart, so we check the page
+        
+        # SauceDemo does NOT allow checkout with empty cart
+        current_url_before = driver.current_url
         cart_page.proceed_to_checkout()
-        # We should be on the checkout page with no items
-        assert "checkout" in driver.current_url
+        current_url_after = driver.current_url
+        
+        # User should stay on the cart page
+        assert current_url_before == current_url_after, "User should not proceed to checkout with empty cart"
