@@ -1,4 +1,5 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
 
 class CartPage(BasePage):
@@ -9,6 +10,10 @@ class CartPage(BasePage):
     REMOVE_BUTTON = (By.CSS_SELECTOR, "button[data-test*='remove']")
     CHECKOUT_BUTTON = (By.ID, "checkout")
     CONTINUE_SHOPPING_BUTTON = (By.ID, "continue-shopping")
+    
+    def wait_for_checkout_button(self):
+        """Wait for the checkout button to be clickable."""
+        self.wait.until(EC.element_to_be_clickable(self.CHECKOUT_BUTTON))
     
     def get_cart_items(self):
         """Get list of all items in the cart."""
@@ -32,4 +37,5 @@ class CartPage(BasePage):
     
     def proceed_to_checkout(self):
         """Click the checkout button."""
+        self.wait_for_checkout_button()
         self.click(self.CHECKOUT_BUTTON)
