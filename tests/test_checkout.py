@@ -1,8 +1,8 @@
+import pytest
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -35,8 +35,19 @@ class TestCheckout:
         yield driver
         driver.quit()
     
+    def clear_cart(self, driver):
+        products_page = ProductsPage(driver)
+        if products_page.get_cart_count() > 0:
+            products_page.go_to_cart()
+            cart_page = CartPage(driver)
+            items = cart_page.get_cart_items()
+            for item in items:
+                cart_page.remove_item(item)
+            driver.get("https://www.saucedemo.com/inventory.html")
+    
     @pytest.mark.skipif(os.getenv("CI") == "true", reason="Skipping checkout tests in CI due to headless timing issues")
     def test_complete_checkout_flow(self, driver):
+        self.clear_cart(driver)
         products_page = ProductsPage(driver)
         products_page.add_product_to_cart("Sauce Labs Backpack")
         products_page.go_to_cart()
@@ -53,6 +64,7 @@ class TestCheckout:
     
     @pytest.mark.skipif(os.getenv("CI") == "true", reason="Skipping checkout tests in CI due to headless timing issues")
     def test_checkout_with_invalid_postal_code(self, driver):
+        self.clear_cart(driver)
         products_page = ProductsPage(driver)
         products_page.add_product_to_cart("Sauce Labs Backpack")
         products_page.go_to_cart()
